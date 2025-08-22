@@ -41,7 +41,7 @@
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-6 items-center font-bold text-gray-500">
-          <a href="<?= $base_url ?>beranda" class="nav-link hover:text-green-600" data-key="home">Beranda</a>
+          <a href="<?= $base_url ?>index.php" class="nav-link hover:text-green-600" data-key="home">Beranda</a>
           <a href="<?= $base_url ?>tentang-kami" class="nav-link hover:text-green-600" data-key="about">Tentang Kami</a>
           <a href="<?= $base_url ?>program" class="nav-link hover:text-green-600" data-key=" program">Program</a>
           <div class="relative group" id="mediaMenu">
@@ -105,7 +105,7 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg hidden flex-col p-6 z-40">
       <button id="closeMenu" class="self-end mb-6">✖</button>
-      <a href="<?= $base_url ?>beranda" class="block py-2 font-semibold" data-key="home">Beranda</a>
+      <a href="<?= $base_url ?>index.php" class="block py-2 font-semibold" data-key="home">Beranda</a>
       <a href="<?= $base_url ?>tentang-kami" class="block py-2 font-semibold" data-key="about">Tentang Kami</a>
       <a href="<?= $base_url ?>program" class="block py-2 font-semibold" data-key="program">Program</a>
       <details class="py-2">
