@@ -1,0 +1,118 @@
+    :root {
+        --rb-green: #15803d;
+        --rb-orange: #f97316;
+        }
+  /* Lemari dengan tema hijau-orange */
+    .lemari {
+      background: linear-gradient(135deg, #4caf50 40%, #ff9800 100%);
+    }
+
+    /* Efek buku dengan gradasi */
+    .book {
+      background: linear-gradient(to right, #444, var(--color), #ddd);
+      border-left: 2px solid rgba(0,0,0,0.2);
+      border-right: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .book:hover {
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    /* Sticky note tempelan */
+    .note {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      background: #ffeb3b;
+      transform: rotate(-10deg);
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: #333;
+      border-radius: 6px;
+    }
+
+    @media (min-width: 768px) {
+      .note {
+        width: 60px;
+        height: 60px;
+        font-size: 0.8rem;
+      }
+    }
+
+    .note-pink { background: #fbb6ce; }
+    .note-blue { background: #a7f3d0; }
+    .note-green { background: #d9f99d; }
+
+    /* Coretan anak-anak */
+    .scribble {
+      position: absolute;
+      width: 60px;
+      height: 25px;
+      background: transparent;
+      border: 3px dashed rgba(255,255,255,0.7);
+      transform: rotate(15deg);
+    }
+
+    @media (min-width: 768px) {
+      .scribble {
+        width: 80px;
+        height: 30px;
+      }
+    }
+
+    /* papan kategori sejajar */
+    .papan {
+      background: repeating-linear-gradient(
+        90deg,
+        #d3b887,
+        #d3b887 10px,
+        #c8a96f 10px,
+        #c8a96f 20px
+      );
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      padding: 2px 6px;
+      width: 80%;
+      margin-bottom: 10px;
+      box-shadow: 2px 4px 6px rgba(0,0,0,0.3);
+      border-radius: 0 0 10px 10px; 
+      position: absolute;
+      top: 0;
+      font-size: 0.7rem;
+    }
+
+    @media (min-width: 640px) {
+      .papan { font-size: 0.8rem; padding: 4px 8px; }
+    }
+    @media (min-width: 1024px) {
+      .papan { font-size: 1rem; }
+    }
+
+    /* ===== Modal Animation ===== */
+    .modal-content {
+      transform: scale(0.8);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .modal-show .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* ===== Halaman Baca Buku ===== */
+    .book-page {
+      transform-origin: left;
+      transform: rotateY(90deg);
+      opacity: 0;
+      transition: all 0.6s ease;
+    }
+    .book-page.show {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }

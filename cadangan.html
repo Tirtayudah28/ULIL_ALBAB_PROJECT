@@ -241,3 +241,252 @@
     });
   </script>
    <script src="https://cdn.tailwindcss.com"></script>
+
+   <?php include 'config/koneksi.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navbar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body class="bg-gray-50">
+  
+<!-- NAVBAR -->
+<header class="fixed inset-x-0 top-4 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="backdrop-blur-xl bg-white/80 border border-white/40 rounded-2xl shadow-lg flex items-center justify-between px-6 py-3">
+      
+
+<!-- Logo -->
+<a href="../beranda/index.php" class="flex items-center gap-3 md:gap-4">
+  <img src="<?= $base_url ?>image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+</a>
+
+<!-- Desktop Menu -->
+<nav class="hidden md:flex items-center gap-3 md:gap-6 font-medium text-slate-700 text-sm md:text-base">
+  <a href="<?= $base_url ?>beranda/index.php" class="nav-link" data-key="home">Beranda</a>
+  <a href="<?= $base_url ?>tentang-kami/index.php" class="nav-link" data-key="about">Tentang Kami</a>
+  <a href="<?= $base_url ?>program/index.php" class="nav-link" data-key="program">Program</a>
+
+  <!-- Media dropdown -->
+  <div x-data="{open:false}" class="relative" x-on:click.away="open=false">
+    <button x-on:click="open=!open" class="nav-link flex items-center gap-1" data-key="Media">
+      Media
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="open" x-transition x-cloak class="absolute right-0 mt-3 w-36 md:w-44 rounded-xl bg-white border shadow-lg py-2">
+      <a href="<?= $base_url ?>berita/index.php" class="dropdown-item" data-key="news">Berita</a>
+      <a href="<?= $base_url ?>publikasi/index.php" class="dropdown-item" data-key="publication">Publikasi</a>
+    </div>
+  </div>
+
+  <a href="<?= $base_url ?>pojok-baca/index.php" class="nav-link" data-key="pojok">Pojok Baca</a>
+  <a href="<?= $base_url ?>hubungi-kami/index.php" class="nav-link" data-key="contact">Hubungi Kami</a>
+
+  <!-- Bahasa -->
+  <div x-data="{open:false}" class="relative" x-on:click.away="open=false">
+    <button x-on:click="open=!open" class="flex items-center gap-1 font-medium hover:text-[var(--rb-orange)] text-sm md:text-base">
+      <span class="fi fi-id"></span> ID
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-4 md:w-4" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+        <path stroke-linecap="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="open" x-transition x-cloak class="absolute right-0 mt-3 w-36 md:w-40 rounded-xl bg-white border shadow-lg py-2">
+      <a href="?lang=id" class="dropdown-item">🇮🇩 Indonesia</a>
+      <a href="?lang=en" class="dropdown-item">🇬🇧 English</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Donate & Mobile btn -->
+<div class="flex items-center gap-2 md:gap-3">
+  <a href="#donate" class="hidden md:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 md:px-4 py-1.5 md:py-2 text-white text-sm md:text-base font-semibold shadow-md hover:scale-105 transition"
+    data-key="donate">
+    ❤️ Donasi
+  </a>
+
+  <!-- Hamburger -->
+  <button id="mobileBtn" aria-label="Buka menu" class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-lg border border-slate-200 hover:bg-gray-100">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[var(--rb-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+</div>
+
+
+    </div>
+
+    <!-- Mobile Panel -->
+    <div id="mobilePanel" class="fixed top-0 right-0 w-72 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-40 p-6 space-y-4">
+      <button id="closeMobile" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+        ✕
+      </button>
+      <a href="<?= $base_url ?>beranda/index.php" class="mobile-link" data-key="home">Beranda</a>
+      <a href="<?= $base_url ?>tentang-kami/index.php" class="mobile-link" data-key="about">Tentang Kami</a>
+      <a href="<?= $base_url ?>program/index.php" class="mobile-link" data-key="program">Program</a>
+      <details>
+        <summary class="mobile-link cursor-pointer" data-key="media">Media</summary>
+        <div class="pl-4 space-y-2">
+          <a href="#news" class="mobile-link" data-key="news">Berita</a>
+          <a href="#publications" class="mobile-link" data-key="publication">Publikasi</a>
+        </div>
+      </details>
+      <a href="<?= $base_url ?>pojok-baca/index.php" class="mobile-link" data-key="pojok">Pojok Baca</a>
+      <a href="<?= $base_url ?>hubungi-kami/index.php" class="mobile-link" data-key="contact">Hubungi Kami</a>
+
+      <!-- Bahasa di Mobile -->
+      <div class="border-t pt-4">
+        <p class="text-sm text-gray-500 mb-2">Pilih Bahasa:</p>
+        <a href="?lang=id" class="mobile-link">🇮🇩 Indonesia</a>
+        <a href="?lang=en" class="mobile-link">🇬🇧 English</a>
+      </div>
+
+      <a href="#donate" class="block mt-6 text-center bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-semibold shadow hover:scale-105"
+      data-key="donate">❤️ Donasi</a>
+    </div>
+  </div>
+</header>
+
+<style>
+.nav-link {
+  position: relative;
+  transition: color .3s;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 2px;
+  background: var(--rb-orange);
+  transition: width .3s;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+.dropdown-item {
+  display: block;
+  padding: .5rem 1rem;
+  font-size: .9rem;
+  color: #374151;
+}
+.dropdown-item:hover { background: #f9fafb; }
+.mobile-link {
+  display: block;
+  padding: .5rem 0;
+  font-weight: 500;
+  color: #374151;
+}
+.mobile-link:hover { color: var(--rb-orange); }
+</style>
+
+<script src="translate.js"></script>
+<script>
+  AOS.init({ duration: 700, once: true });
+
+  const mobileBtn = document.getElementById('mobileBtn');
+  const mobilePanel = document.getElementById('mobilePanel');
+  const closeMobile = document.getElementById('closeMobile');
+
+  // Buka menu mobile
+  mobileBtn.addEventListener('click', () => {
+    mobilePanel.classList.remove('translate-x-full');
+    mobilePanel.classList.add('translate-x-0');
+    document.body.style.overflow = 'hidden'; // disable scroll saat menu terbuka
+  });
+
+  // Tutup menu mobile
+  closeMobile.addEventListener('click', () => {
+    mobilePanel.classList.add('translate-x-full');
+    mobilePanel.classList.remove('translate-x-0');
+    document.body.style.overflow = 'auto'; // kembalikan scroll
+  });
+
+  // Klik di luar panel untuk menutup menu
+  document.addEventListener('click', function(e) {
+    if(!mobilePanel.contains(e.target) && !mobileBtn.contains(e.target)){
+      mobilePanel.classList.add('translate-x-full');
+      mobilePanel.classList.remove('translate-x-0');
+      document.body.style.overflow = 'auto';
+    }
+  });
+</script>
+</body>
+</html>
+
+
+
+
+    /* =========================
+       NAVBAR: Hide on scroll
+    ==========================*/
+    let lastScroll = 0;
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      const y = window.pageYOffset || document.documentElement.scrollTop;
+      if (y > lastScroll && y > 10) navbar.style.top = "-90px";
+      else navbar.style.top = "0";
+      lastScroll = y;
+    });
+
+    /* =========================
+       Desktop dropdown (hover + click)
+    ==========================*/
+    function dropdownHoverClick(btnId, menuId, wrapId){
+      const btn = document.getElementById(btnId);
+      const menu = document.getElementById(menuId);
+      const wrap = document.getElementById(wrapId);
+      let open = false;
+      // hover
+      wrap.addEventListener('mouseenter', ()=>{ menu.classList.remove('hidden'); open=true; });
+      wrap.addEventListener('mouseleave', ()=>{ menu.classList.add('hidden'); open=false; });
+      // click toggler (tablet/laptop)
+      btn.addEventListener('click', (e)=> {
+        e.preventDefault();
+        open = !open;
+        menu.classList.toggle('hidden', !open);
+      });
+      // click outside
+      document.addEventListener('click', (e)=>{
+        if(!wrap.contains(e.target)){ menu.classList.add('hidden'); open=false; }
+      });
+    }
+    dropdownHoverClick('mediaBtn','mediaMenu','mediaWrap');
+    dropdownHoverClick('langBtn','langMenu','langWrap');
+
+    /* =========================
+       Mobile sheet
+    ==========================*/
+    const hamburger = document.getElementById('hamburger');
+    const sheet = document.getElementById('mobileSheet');
+    const closeSheet = document.getElementById('closeSheet');
+    hamburger.addEventListener('click', ()=> sheet.classList.add('open'));
+    closeSheet.addEventListener('click', ()=> sheet.classList.remove('open'));
+    document.addEventListener('click', (e)=>{
+      if (sheet.classList.contains('open') && !sheet.contains(e.target) && !hamburger.contains(e.target)){
+        sheet.classList.remove('open');
+      }
+    });
+
+    /* =========================
+       Login Popup
+    ==========================*/
+    const loginPopup = document.getElementById('loginPopup');
+    const profileBtn = document.getElementById('profileBtn');
+    const mobileProfile = document.getElementById('mobileProfile');
+    const closePopup = document.getElementById('closePopup');
+    function openLogin(){ loginPopup.classList.remove('hidden'); loginPopup.classList.add('flex'); }
+    function closeLogin(){ loginPopup.classList.add('hidden'); loginPopup.classList.remove('flex'); }
+    if(profileBtn) profileBtn.addEventListener('click', openLogin);
+    if(mobileProfile) mobileProfile.addEventListener('click', openLogin);
+    closePopup.addEventListener('click', closeLogin);
+    loginPopup.addEventListener('click', (e)=>{ if(e.target===loginPopup) closeLogin(); });
+
+
+    
