@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Program - Rumah Baca</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <!-- AOS (Animate on Scroll) -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <!-- Icons (Heroicons) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+   <style>
+    body { font-family: 'Poppins', sans-serif; color:#0f172a; }
+    .navbar{ transition: top .4s ease; }
+    .nav-link{ position:relative; }
+    .nav-link:after{
+      content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0;
+      background:linear-gradient(90deg,#0ea5a0,#f97316); transition:width .25s;
+    }
+    .nav-link:hover:after{ width:100%; }
+    .btn-primary{ background:linear-gradient(90deg,#f97316,#fb923c); color:#fff; }
+    .btn-primary:hover{ filter:brightness(.95); }
+    .hover-green:hover{ color:#0ea5a0; }
+    .hover-bg-green:hover{ background:rgba(14,165,160,.08); }
+    .hover-bg-orange:hover{ background:#fed7aa; }
+
+    :root{
+      --rb-green: #0f7a54;
+      --rb-orange: #ff7a18;
+      --rb-dark: #0f172a;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    .animate-spin-slow {
+        animation: spin 6s linear infinite;
+    }
+
+      .perspective {
+        perspective: 1000px;
+    }
+    .preserve-3d {
+        transform-style: preserve-3d;
+    }
+    .rotate-y-180 {
+        transform: rotateY(180deg);
+    }
+    .backface-hidden {
+        backface-visibility: hidden;
+    }
+  
+
+  .animate-bounce-slow {
+    animation: bounceSlow 4s infinite ease-in-out;
+  }
+  .animate-bounce-slow-delay {
+    animation: bounceSlow 5s infinite ease-in-out;
+  }
+  @keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <!-- Navbar -->
+  <header id="navbar" class="navbar fixed top-0 left-0 w-full bg-white border-b border-gray-100 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-3 md:gap-4">
+          <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+        </a>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-6 items-center font-bold text-gray-500">
+          <a href="../index.html" class="nav-link hover:text-green-600" data-key="home">Beranda</a>
+          <a href="../tentang-kami/index.html" class="nav-link hover:text-green-600" data-key="about">Tentang Kami</a>
+          <a href="../program/index.html" class="nav-link hover:text-green-600" data-key=" program">Program</a>
+          <div class="relative group" id="mediaMenu">
+            <button class="nav-link hover:text-green-600 flex items-center" data-key="media">
+              Media
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute hidden group-hover:block bg-white shadow-lg mt-2 rounded-lg py-2 w-40" id="mediaDropdown">
+              <a href="../berita/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="news">Berita</a>
+              <a href="../publikasi/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="publication">Publikasi</a>
+            </div>
+          </div>
+          <a href="../pojok-baca/index.html" class="nav-link hover:text-green-600" data-key="pojok">Pojok Baca</a>
+          <a href="../hubungi-kami/index.html" class="nav-link hover:text-green-600" data-key="contact">Hubungi Kami</a>
+          <a href="../donasi/index.html" class="btn-primary rounded-lg px-4 py-2 font-semibold shadow-soft" data-key="donate">Donasi</a>
+
+          <!-- Bahasa -->
+          <div class="relative" id="langMenu">
+            <button class="nav-link hover-green flex items-center gap-1">
+              ID
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="absolute right-0 mt-3 w-40 rounded-xl bg-white border shadow-lg py-2 hidden" id="langDropdown">
+              <a href="?lang=id" class="block px-4 py-2 hover:bg-green-100">🇮🇩 Indonesia</a>
+              <a href="?lang=en" class="block px-4 py-2 hover:bg-green-100">🇬🇧 English</a>
+            </div>
+          </div>
+
+          <!-- Profile/Login -->
+          <div class="relative">
+            <button id="profileBtn" class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:ring-2 ring-offset-2 ring-[#0ea5a0]">
+              <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+              </svg>
+            </button>
+            <!-- Dropdown user -->
+            <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white border shadow-lg rounded-lg py-2 hidden">
+              <a href="#" id="myProfile" class="block px-4 py-2 hover:bg-green-100" data-key="profile">Profil Saya</a>
+              <a href="#" id="uploadBook" class="block px-4 py-2 hover:bg-green-100" data-key="upload">Upload Buku</a>
+              <a href="#" id="logoutBtn" class="block px-4 py-2 hover:bg-green-100 text-red-500 font-semibold" data-key="logout">Logout</a>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- Hamburger Mobile -->
+        <div class="flex items-center md:hidden">
+          <button id="hamburger" class="focus:outline-none">
+            <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg hidden flex-col p-6 z-40">
+      <button id="closeMenu" class="self-end mb-6">✖</button>
+      <a href="../index.php" class="block py-2 font-semibold" data-key="home">Beranda</a>
+      <a href="../tentang-kami/index.html" class="block py-2 font-semibold" data-key="about">Tentang Kami</a>
+      <a href="../program/index.html" class="block py-2 font-semibold" data-key="program">Program</a>
+      <details class="py-2">
+        <summary class="cursor-pointer font-semibold" data-key="media">Media</summary>
+        <a href="../berita/index.html" class="block py-2 pl-4" data-key="news">Berita</a>
+        <a href="../publikasi/index.html" class="block py-2 pl-4" data-key="publication">Publikasi</a>
+      </details>
+      <a href="../pojok-baca/index.html" class="block py-2 font-semibold" data-key="pojok">Pojok Baca</a>
+      <a href="../hubungi-kami/index.html" class="block py-2 font-semibold" data-key="contact">Hubungi Kami</a>
+      <a href="../donasi/index.html" class="block py-2 text-orange-600 font-bold" data-key="donation">Donasi</a>
+      <div class="mt-6">
+        <p class="text-sm text-gray-500 mb-2">Pilih Bahasa:</p>
+        <a href="?lang=id" class="block py-1">🇮🇩 Indonesia</a>
+        <a href="?lang=en" class="block py-1">🇬🇧 English</a>
+      </div>
+    </div>
+  </header>
+  
+ <!-- HERO PARALLAX -->
+<section class="relative bg-fixed bg-center bg-cover h-[80vh]" style="background-image: url('https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1600&q=80');">
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+    <h1 class="text-4xl md:text-6xl font-bold mb-4">Program Rumah Baca</h1>
+    <p class="max-w-2xl mb-6 text-lg md:text-xl">Membuka wawasan, membangun masa depan melalui literasi, edukasi, dan kreativitas.</p>
+  </div>
+</section>
+
+<!-- Highlight Program -->
+<section class="py-16 bg-gradient-to-br from-green-50 via-white to-orange-50">
+  <div class="container mx-auto px-6 lg:px-16 flex flex-col lg:flex-row items-center gap-10" data-aos="zoom-in">
+        <!-- Image with overlay -->
+    <div class="lg:w-1/2 relative">
+      <img src="../image/festival.jpg" alt="Festival Literasi" 
+           class="rounded-2xl shadow-xl object-cover w-full h-80">
+      <!-- Gradient Overlay -->
+      <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-green-600/20 via-transparent to-orange-500/20"></div>
+    </div>
+    <!-- Text -->
+    <div class="lg:w-1/2 text-center lg:text-left relative z-10">
+      <span class="text-sm uppercase tracking-wide text-green-600 font-semibold">Program Unggulan</span>
+      <h2 class="text-3xl font-bold mt-2 mb-4 text-gray-800">Festival Literasi Rumah Baca</h2>
+      <p class="text-gray-600 mb-6">
+        Festival tahunan yang menghadirkan lomba menulis, bedah buku, hingga workshop kreatif.  
+        Dihadiri ratusan peserta dari berbagai kalangan dan menjadi ajang silaturahmi pecinta literasi.
+      </p>
+      <a href="#" 
+         class="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-orange-500 text-white font-semibold rounded-xl shadow hover:scale-105 hover:shadow-lg transition">
+        Lihat Detail
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Program Section -->
+<section class="py-20 relative bg-gradient-to-tr from-orange-50 via-white to-green-50">
+  <div class="container mx-auto px-6 lg:px-16">
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800 relative">
+      Program Unggulan Kami
+      <span class="block w-20 h-1 bg-gradient-to-r from-green-600 to-orange-500 mx-auto mt-3 rounded-full"></span>
+    </h2>
+
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Card 1 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition group relative" data-aos="fade-up">
+        <span class="absolute top-4 right-4 bg-green-600 text-white text-xs px-3 py-1 rounded-full shadow">Populer</span>
+        <img src="../image/baca-buku.jpg" alt="Kegiatan Literasi" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-600 group-hover:scale-110 transition">
+              <i data-lucide="book-open" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">Kegiatan Literasi</h3>
+          </div>
+          <p class="text-gray-600">Menumbuhkan budaya membaca melalui taman baca, kelas membaca, serta pelatihan menulis dan jurnalistik.</p>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition group relative" data-aos="fade-up" data-aos-delay="100">
+        <span class="absolute top-4 right-4 bg-orange-500 text-white text-xs px-3 py-1 rounded-full shadow">Unggulan</span>
+        <img src="../image/edukasi.jpg" alt="Kelas Edukasi" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-orange-100 text-orange-600 group-hover:rotate-12 transition">
+              <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">Kelas Edukasi</h3>
+          </div>
+          <p class="text-gray-600">Mendukung pendidikan anak & remaja dengan bimbingan belajar, literasi digital, serta pengembangan soft skill.</p>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition group relative" data-aos="fade-up" data-aos-delay="200">
+        <img src="../image/kreatifitas.jpg" alt="Pengembangan Kreativitas" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-600 group-hover:scale-110 transition">
+              <i data-lucide="palette" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">Pengembangan Kreativitas</h3>
+          </div>
+          <p class="text-gray-600">Membuka ruang ekspresi untuk anak-anak melalui seni, musik, kerajinan tangan, hingga karya digital.</p>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition group relative" data-aos="fade-up" data-aos-delay="300">
+        <img src="../image/sosial.jpg" alt="Program Sosial" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-orange-100 text-orange-600 group-hover:rotate-12 transition">
+              <i data-lucide="handshake" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">Program Sosial</h3>
+          </div>
+          <p class="text-gray-600">Menebar manfaat bagi masyarakat melalui donasi buku, kegiatan relawan, dan kolaborasi komunitas.</p>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition group relative" data-aos="fade-up" data-aos-delay="400">
+        <img src="../image/event.jpg" alt="Event & Kegiatan" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-600 group-hover:scale-110 transition">
+              <i data-lucide="calendar" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">Event & Kegiatan</h3>
+          </div>
+          <p class="text-gray-600">Kegiatan rutin yang memperkuat ikatan komunitas, seperti lomba literasi, bedah buku, dan festival baca.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- Testimoni Section -->
+  <section class="py-16 bg-gradient-to-r from-green-50 to-orange-50">
+    <div class="container mx-auto px-6 lg:px-16 text-center" data-aos="fade-up">
+      <h2 class="text-3xl font-bold mb-8 text-gray-800">Apa Kata Mereka?</h2>
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <img src="assets/img/testi1.jpg" alt="Andi" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+          <p class="text-gray-600 mb-4">“Rumah Baca membuat saya jadi suka membaca. Sekarang saya bisa pinjam banyak buku gratis!”</p>
+          <h4 class="font-semibold text-green-700">– Andi, 12 tahun</h4>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <img src="assets/img/testi2.jpg" alt="Siti" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+          <p class="text-gray-600 mb-4">“Saya ikut kelas komputer, sekarang lebih percaya diri pakai laptop untuk belajar.”</p>
+          <h4 class="font-semibold text-orange-600">– Siti, 15 tahun</h4>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+          <img src="assets/img/testi3.jpg" alt="Budi" class="w-16 h-16 rounded-full mx-auto mb-4 object-cover">
+          <p class="text-gray-600 mb-4">“Kegiatan relawan di Rumah Baca memberi saya pengalaman berharga untuk berbagi.”</p>
+          <h4 class="font-semibold text-green-700">– Budi, Relawan</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Galeri Dokumentasi -->
+  <section class="py-16">
+    <div class="container mx-auto px-6 lg:px-16" data-aos="fade-up">
+      <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Galeri Program</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <img src="../image/baca-buku.jpg" alt="Dokumentasi 1" class="rounded-xl shadow-md hover:scale-105 transition duration-300 object-cover">
+        <img src="../image/donasi-picture.jpg" alt="Dokumentasi 2" class="rounded-xl shadow-md hover:scale-105 transition duration-300 object-cover">
+        <img src="../image/edukasi.jpg" alt="Dokumentasi 3" class="rounded-xl shadow-md hover:scale-105 transition duration-300 object-cover">
+        <img src="../image/tentang-kami2.jpg" alt="Dokumentasi 4" class="rounded-xl shadow-md hover:scale-105 transition duration-300 object-cover">
+      </div>
+    </div>
+  </section>
+
+          <!-- FOOTER (expanded) -->
+<footer class="bg-[var(--rb-green)] text-white pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- About -->
+      <div>
+        <div class="flex items-center gap-3">
+           <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+          <div>
+            <div class="font-semibold text-lg">Rumah Baca Ulil Albab</div>
+            <div class="text-sm text-emerald-100">Membangun generasi literasi.</div>
+          </div>
+        </div>
+        <p class="mt-4 text-emerald-100/90 text-sm">Ruang aman untuk membaca, berdiskusi, dan berkarya—didukung relawan & komunitas.</p>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <div class="font-semibold mb-3">Tautan</div>
+        <ul class="space-y-2 text-emerald-100/90 text-sm">
+          <li><a href="#" class="hover:underline">Beranda</a></li>
+          <li><a href="#about" class="hover:underline">Tentang Kami</a></li>
+          <li><a href="#programs" class="hover:underline">Program</a></li>
+          <li><a href="#pojokbaca" class="hover:underline">Pojok Baca</a></li>
+          <li><a href="#news" class="hover:underline">Berita</a></li>
+        </ul>
+      </div>
+
+      <!-- Donasi info -->
+      <div>
+        <div class="font-semibold mb-3">Donasi</div>
+        <div class="text-emerald-100/90 text-sm space-y-2">
+          <div>Bank BCA — 123-456-7890 (a.n. Yayasan Ulil Albab)</div>
+          <div>Bank Mandiri — 987-654-3210 (a.n. Rumah Baca Ulil Albab)</div>
+          <div class="mt-3">Scan QRIS:</div>
+          <div class="mt-2">
+            <img src="https://via.placeholder.com/140x140.png?text=QRIS" alt="QRIS Donasi" class="rounded-md border">
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter & social -->
+      <div>
+        <div class="font-semibold mb-3">Newsletter</div>
+        <p class="text-emerald-100/90 text-sm">Dapatkan kabar kegiatan & jadwal donasi rutin.</p>
+        <form class="mt-3 flex flex-col sm:flex-row gap-2">
+          <input type="email" placeholder="Email kamu" class="w-full rounded-lg px-3 py-2 text-slate-800" />
+          <button class="rounded-lg bg-[var(--rb-orange)] px-4 py-2 font-semibold">Berlangganan</button>
+        </form>
+
+        <div class="mt-4 flex flex-wrap gap-3 text-emerald-100">
+          <a href="#" class="hover:text-white">Facebook</a>
+          <a href="#" class="hover:text-white">Instagram</a>
+          <a href="#" class="hover:text-white">YouTube</a>
+          <a href="#" class="hover:text-white">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 border-t border-white/20 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-emerald-100/90 text-sm">
+      <div>© 2025 Rumah Baca Ulil Albab. Semua hak dilindungi.</div>
+      <div>Didesain dengan ♥ oleh Tim Rumah Baca Ulil Albab — tema: hijau & oranye.</div>
+    </div>
+  </div>
+</footer>
+
+
+  <script src="<?= $base_url ?>translate.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+
+</body>
+</html>
