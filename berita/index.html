@@ -1,0 +1,452 @@
+<?php
+session_start();
+include '../config/koneksi.php';
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Berita Rumah Baca</title>
+  <link rel="stylesheet" href="berita.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --rb-green: #15803d;
+      --rb-orange: #f97316;
+    }
+    * { box-sizing: border-box; } /* pastikan semua elemen tidak meluber */
+    html, body { overflow-x: hidden; } /* hilangkan scroll horizontal */
+    /* Override Tailwind warna biru menjadi hijau/orange */
+    .rb-bg-green { background-color: var(--rb-green); }
+    .rb-bg-orange { background-color: var(--rb-orange); }
+    .rb-text-green { color: var(--rb-green); }
+    .rb-text-orange { color: var(--rb-orange); }
+    .rb-border-green { border-color: var(--rb-green); }
+    .rb-border-orange { border-color: var(--rb-orange); }
+    .rb-hover-green:hover { background-color: var(--rb-green); color: white; }
+    .rb-hover-orange:hover { background-color: var(--rb-orange); color: white; }
+  </style>
+</head>
+<body class="font-sans bg-white text-gray-800 overflow-y-auto">
+
+
+  <!-- Navbar -->
+  <header id="navbar" class="navbar fixed top-0 left-0 w-full bg-white border-b border-gray-100 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-3 md:gap-4">
+          <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+        </a>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-6 items-center font-bold text-gray-500">
+          <a href="../index.html" class="nav-link hover:text-green-600" data-key="home">Beranda</a>
+          <a href="../tentang-kami/index.html" class="nav-link hover:text-green-600" data-key="about">Tentang Kami</a>
+          <a href="../program/index.html" class="nav-link hover:text-green-600" data-key=" program">Program</a>
+          <div class="relative group" id="mediaMenu">
+            <button class="nav-link hover:text-green-600 flex items-center" data-key="media">
+              Media
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute hidden group-hover:block bg-white shadow-lg mt-2 rounded-lg py-2 w-40" id="mediaDropdown">
+              <a href="../berita/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="news">Berita</a>
+              <a href="../publikasi/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="publication">Publikasi</a>
+            </div>
+          </div>
+          <a href="../pojok-baca/index.html" class="nav-link hover:text-green-600" data-key="pojok">Pojok Baca</a>
+          <a href="../hubungi-kami/index.html" class="nav-link hover:text-green-600" data-key="contact">Hubungi Kami</a>
+          <a href="../donasi/index.html" class="btn-primary rounded-lg px-4 py-2 font-semibold shadow-soft" data-key="donate">Donasi</a>
+
+          <!-- Bahasa -->
+          <div class="relative" id="langMenu">
+            <button class="nav-link hover-green flex items-center gap-1">
+              ID
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="absolute right-0 mt-3 w-40 rounded-xl bg-white border shadow-lg py-2 hidden" id="langDropdown">
+              <a href="?lang=id" class="block px-4 py-2 hover:bg-green-100">🇮🇩 Indonesia</a>
+              <a href="?lang=en" class="block px-4 py-2 hover:bg-green-100">🇬🇧 English</a>
+            </div>
+          </div>
+
+          <!-- Profile/Login -->
+          <div class="relative">
+            <button id="profileBtn" class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:ring-2 ring-offset-2 ring-[#0ea5a0]">
+              <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+              </svg>
+            </button>
+            <!-- Dropdown user -->
+            <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white border shadow-lg rounded-lg py-2 hidden">
+              <a href="#" id="myProfile" class="block px-4 py-2 hover:bg-green-100" data-key="profile">Profil Saya</a>
+              <a href="#" id="uploadBook" class="block px-4 py-2 hover:bg-green-100" data-key="upload">Upload Buku</a>
+              <a href="#" id="logoutBtn" class="block px-4 py-2 hover:bg-green-100 text-red-500 font-semibold" data-key="logout">Logout</a>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- Hamburger Mobile -->
+        <div class="flex items-center md:hidden">
+          <button id="hamburger" class="focus:outline-none">
+            <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg hidden flex-col p-6 z-40">
+      <button id="closeMenu" class="self-end mb-6">✖</button>
+      <a href="../index.php" class="block py-2 font-semibold" data-key="home">Beranda</a>
+      <a href="../tentang-kami/index.html" class="block py-2 font-semibold" data-key="about">Tentang Kami</a>
+      <a href="../program/index.html" class="block py-2 font-semibold" data-key="program">Program</a>
+      <details class="py-2">
+        <summary class="cursor-pointer font-semibold" data-key="media">Media</summary>
+        <a href="../berita/index.html" class="block py-2 pl-4" data-key="news">Berita</a>
+        <a href="../publikasi/index.html" class="block py-2 pl-4" data-key="publication">Publikasi</a>
+      </details>
+      <a href="../pojok-baca/index.html" class="block py-2 font-semibold" data-key="pojok">Pojok Baca</a>
+      <a href="../hubungi-kami/index.html" class="block py-2 font-semibold" data-key="contact">Hubungi Kami</a>
+      <a href="../donasi/index.html" class="block py-2 text-orange-600 font-bold" data-key="donation">Donasi</a>
+      <div class="mt-6">
+        <p class="text-sm text-gray-500 mb-2">Pilih Bahasa:</p>
+        <a href="?lang=id" class="block py-1">🇮🇩 Indonesia</a>
+        <a href="?lang=en" class="block py-1">🇬🇧 English</a>
+      </div>
+    </div>
+  </header>
+    
+<!-- Hero -->
+<section class="relative bg-[url('https://transparenttextures.com/patterns/cubes.png')] bg-[var(--rb-green)] text-white text-center py-12 sm:py-20 px-4 overflow-hidden">
+  <div class="relative z-10 max-w-2xl mx-auto mt-[5rem]">
+    <i class="bi bi-newspaper text-2xl sm:text-4xl text-[var(--rb-orange)] mb-3 sm:mb-4 block animate-bounce" data-aos="fade-down" data-aos-delay="600"></i>
+    <h1 class="text-2xl sm:text-4xl font-extrabold mb-2" data-aos="fade-up" data-aos-delay="600">Berita Rumah Baca</h1>
+    <p class="text-sm sm:text-base md:text-lg text-gray-100" data-aos="fade-up" data-aos-delay="600">
+      Ikuti perkembangan terbaru mengenai program, kegiatan, dan dampak positif yang kami ciptakan.
+    </p>
+  </div>
+</section>
+
+
+
+<!-- Search + Filter -->
+<section class="max-w-7xl mx-auto px-4 mt-12 mb-20">
+  <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
+    <div class="relative w-full md:w-1/2">
+      <input id="searchInput" type="text" placeholder="Cari Berita" class="w-full border rb-border-green rounded-md px-10 py-3 focus:ring-[var(--rb-green)] focus:border-[var(--rb-green)]" />
+      <i class="bi bi-search absolute left-3 top-3.5 text-gray-400"></i>
+    </div>
+    <div class="relative w-full md:w-1/4">
+      <select id="kategoriSelect" class="w-full border rb-border-green rounded-md px-4 py-3 appearance-none focus:ring-[var(--rb-green)] focus:border-[var(--rb-green)]">
+        <option value="">Semua Kategori</option>
+        <?php
+        $kategori_query = mysqli_query($koneksi, "SELECT DISTINCT kategori FROM berita");
+        while ($row = mysqli_fetch_assoc($kategori_query)) {
+          echo "<option value=\"{$row['kategori']}\">{$row['kategori']}</option>";
+        }
+        ?>
+      </select>
+      <i class="bi bi-filter absolute right-3 top-3.5 text-gray-400"></i>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" class="hidden text-center py-6 transition-opacity duration-300 opacity-0">
+    <i class="bi bi-arrow-repeat animate-spin text-3xl text-[var(--rb-green)]"></i>
+  </div>
+
+  <!-- Berita -->
+  <div id="hasilBerita" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
+    <?php
+    $result = mysqli_query($koneksi, "SELECT * FROM berita ORDER BY tanggal DESC");
+    while ($row = mysqli_fetch_assoc($result)) {
+      $judul = htmlspecialchars($row['judul']);
+      $kategori = htmlspecialchars($row['kategori']);
+      $excerpt = htmlspecialchars($row['excerpt']);
+      $tanggal = date('d M Y', strtotime($row['tanggal']));
+      $gambar = htmlspecialchars($row['gambar']);
+      $id = $row['id'];
+      echo '
+      <div class="bg-white rounded-lg shadow hover:shadow-lg transition">
+        <img src="../images/berita/' . $gambar . '" alt="' . $judul . '" class="w-full h-48 object-cover rounded-t-lg">
+        <div class="p-5">
+          <span class="inline-block text-sm bg-[var(--rb-green)] text-white px-3 py-1 rounded-full mb-2">' . $kategori . '</span>
+          <h2 class="font-bold text-lg text-gray-800 mb-2">' . $judul . '</h2>
+          <p class="text-gray-600 text-sm mb-3">' . $excerpt . '</p>
+          <div class="text-sm text-gray-500 mb-3"><i class="bi bi-calendar-event"></i> ' . $tanggal . '</div>
+          <a href="detail-berita.php?id=' . $id . '" class="text-[var(--rb-orange)] font-semibold hover:underline">Baca Selengkapnya <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>';
+    }
+    ?>
+  </div>
+
+  <!-- Tidak ditemukan -->
+  <p id="notFound" class="hidden text-center text-gray-500 py-10">Tidak ada berita ditemukan.</p>
+</section>
+
+        <!-- FOOTER (expanded) -->
+<footer class="bg-[var(--rb-green)] text-white pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- About -->
+      <div>
+        <div class="flex items-center gap-3">
+           <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+          <div>
+            <div class="font-semibold text-lg">Rumah Baca Ulil Albab</div>
+            <div class="text-sm text-emerald-100">Membangun generasi literasi.</div>
+          </div>
+        </div>
+        <p class="mt-4 text-emerald-100/90 text-sm">Ruang aman untuk membaca, berdiskusi, dan berkarya—didukung relawan & komunitas.</p>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <div class="font-semibold mb-3">Tautan</div>
+        <ul class="space-y-2 text-emerald-100/90 text-sm">
+          <li><a href="#" class="hover:underline">Beranda</a></li>
+          <li><a href="#about" class="hover:underline">Tentang Kami</a></li>
+          <li><a href="#programs" class="hover:underline">Program</a></li>
+          <li><a href="#pojokbaca" class="hover:underline">Pojok Baca</a></li>
+          <li><a href="#news" class="hover:underline">Berita</a></li>
+        </ul>
+      </div>
+
+      <!-- Donasi info -->
+      <div>
+        <div class="font-semibold mb-3">Donasi</div>
+        <div class="text-emerald-100/90 text-sm space-y-2">
+          <div>Bank BCA — 123-456-7890 (a.n. Yayasan Ulil Albab)</div>
+          <div>Bank Mandiri — 987-654-3210 (a.n. Rumah Baca Ulil Albab)</div>
+          <div class="mt-3">Scan QRIS:</div>
+          <div class="mt-2">
+            <img src="https://via.placeholder.com/140x140.png?text=QRIS" alt="QRIS Donasi" class="rounded-md border">
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter & social -->
+      <div>
+        <div class="font-semibold mb-3">Newsletter</div>
+        <p class="text-emerald-100/90 text-sm">Dapatkan kabar kegiatan & jadwal donasi rutin.</p>
+        <form class="mt-3 flex flex-col sm:flex-row gap-2">
+          <input type="email" placeholder="Email kamu" class="w-full rounded-lg px-3 py-2 text-slate-800" />
+          <button class="rounded-lg bg-[var(--rb-orange)] px-4 py-2 font-semibold">Berlangganan</button>
+        </form>
+
+        <div class="mt-4 flex flex-wrap gap-3 text-emerald-100">
+          <a href="#" class="hover:text-white">Facebook</a>
+          <a href="#" class="hover:text-white">Instagram</a>
+          <a href="#" class="hover:text-white">YouTube</a>
+          <a href="#" class="hover:text-white">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 border-t border-white/20 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-emerald-100/90 text-sm">
+      <div>© 2025 Rumah Baca Ulil Albab. Semua hak dilindungi.</div>
+      <div>Didesain dengan ♥ oleh Tim Rumah Baca Ulil Albab — tema: hijau & oranye.</div>
+    </div>
+  </div>
+</footer>
+
+
+  <!-- Simple Reader Modal (demo) -->
+  <div id="readerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-3 border-b">
+        <div id="readerTitle" class="font-semibold">Judul Buku</div>
+        <button onclick="closeReader()" class="text-slate-600 hover:text-slate-900" aria-label="Tutup">✕</button>
+      </div>
+      <div class="p-6">
+        <p class="text-slate-700">Demo membaca — konten buku akan muncul di sini. Untuk versi produksi kita bisa integrasikan PDF viewer atau sistem CMS untuk isi buku digital.</p>
+      </div>
+    </div>
+  </div>
+  
+
+<script src="../translate.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="berita.js"></script>
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const kategoriSelect = document.getElementById('kategoriSelect');
+  const hasilBerita = document.getElementById('hasilBerita');
+  const loading = document.getElementById('loadingSpinner');
+  const notFound = document.getElementById('notFound');
+
+  let timer;
+
+  function showLoading() {
+    loading.classList.remove('hidden');
+    setTimeout(() => loading.classList.add('opacity-100'), 10);
+    hasilBerita.classList.add('opacity-50');
+  }
+
+  function hideLoading() {
+    loading.classList.remove('opacity-100');
+    setTimeout(() => loading.classList.add('hidden'), 300);
+    hasilBerita.classList.remove('opacity-50');
+  }
+
+  function loadBerita() {
+    clearTimeout(timer);
+    showLoading();
+
+    timer = setTimeout(() => {
+      const keyword = searchInput.value;
+      const kategori = kategoriSelect.value;
+
+      fetch(`cari-berita.php?q=${encodeURIComponent(keyword)}&kategori=${encodeURIComponent(kategori)}`)
+        .then(res => res.text())
+        .then(html => {
+          hasilBerita.innerHTML = html.trim();
+          notFound.classList.toggle('hidden', hasilBerita.innerHTML.trim() !== '');
+          hideLoading();
+        });
+    }, 300);
+  }
+
+  searchInput.addEventListener('input', loadBerita);
+  kategoriSelect.addEventListener('change', loadBerita);
+
+   // Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Navbar scroll hide/show
+    let lastScroll = 0;
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      let currentScroll = window.pageYOffset;
+      if (currentScroll > lastScroll) navbar.style.top = "-80px";
+      else navbar.style.top = "0";
+      lastScroll = currentScroll;
+    });
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMenu = document.getElementById('closeMenu');
+    hamburger.addEventListener('click', () => { mobileMenu.classList.remove('hidden'); mobileMenu.classList.add('show'); });
+    closeMenu.addEventListener('click', () => { mobileMenu.classList.add('hidden'); mobileMenu.classList.remove('show'); });
+
+    // Popup login
+    const profileBtn = document.getElementById('profileBtn');
+    const loginPopup = document.getElementById('loginPopup');
+    const closePopup = document.getElementById('closePopup');
+    profileBtn.addEventListener('click', () => { loginPopup.classList.remove('hidden'); loginPopup.classList.add('flex'); });
+    closePopup.addEventListener('click', () => { loginPopup.classList.add('hidden'); loginPopup.classList.remove('flex'); });
+
+    // Dropdown menus
+    document.getElementById('mediaMenu').addEventListener('click', () => { document.getElementById('mediaDropdown').classList.toggle('hidden'); });
+    document.getElementById('langMenu').addEventListener('click', () => { document.getElementById('langDropdown').classList.toggle('hidden'); });
+
+    // Firebase Social Login
+    document.getElementById('loginGoogle').addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then(result => {
+        loginPopup.classList.add('hidden');
+      }).catch(console.error);
+    });
+
+    document.getElementById('loginFacebook').addEventListener('click', () => {
+      const provider = new firebase.auth.FacebookAuthProvider();
+      auth.signInWithPopup(provider).then(result => { loginPopup.classList.add('hidden'); }).catch(console.error);
+    });
+
+    document.getElementById('loginApple').addEventListener('click', () => {
+      const provider = new firebase.auth.OAuthProvider('apple.com');
+      auth.signInWithPopup(provider).then(result => { loginPopup.classList.add('hidden'); }).catch(console.error);
+    });
+
+    // Login Email
+    document.getElementById('loginEmailBtn').addEventListener('click', () => {
+      const email = document.getElementById('emailInput').value;
+      auth.sendSignInLinkToEmail(email, {
+        url: window.location.href,
+        handleCodeInApp: true
+      }).then(() => {
+        window.localStorage.setItem('emailForSignIn', email);
+        alert("Cek email untuk verifikasi login.");
+      }).catch(console.error);
+    });
+
+    // Update Navbar setelah login
+    const profileDropdown = document.getElementById('profileDropdown');
+    auth.onAuthStateChanged(user => {
+      if(user){
+        profileBtn.innerHTML = `<img src="${user.photoURL || 'default-avatar.png'}" class="w-9 h-9 rounded-full"/>`;
+        profileBtn.addEventListener('click', ()=>{ profileDropdown.classList.toggle('hidden'); });
+      } else {
+        profileBtn.innerHTML = `<svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>`;
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(()=>{ location.reload(); });
+    });
+
+    // mobile menu toggle
+    const mobileBtn = document.getElementById('mobileBtn');
+    const mobilePanel = document.getElementById('mobilePanel');
+    mobileBtn?.addEventListener('click', () => {
+      if (mobilePanel.classList.contains('hidden')) {
+        mobilePanel.classList.remove('hidden');
+        mobilePanel.classList.add('animate-slide-down');
+      } else {
+        mobilePanel.classList.add('hidden');
+        mobilePanel.classList.remove('animate-slide-down');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const els = document.querySelectorAll('.will-animate');
+      els.forEach((el, idx) => {
+        setTimeout(() => el.classList.add('show'), idx * 90);
+      });
+    });
+
+    // Reader modal
+    function openReader(title){
+      document.getElementById('readerTitle').textContent = title;
+      document.getElementById('readerModal').classList.remove('hidden');
+      document.getElementById('readerModal').classList.add('flex');
+    }
+    function closeReader(){
+      document.getElementById('readerModal').classList.add('hidden');
+      document.getElementById('readerModal').classList.remove('flex');
+    }
+</script>
+<script>
+  AOS.init({
+    once: true,
+    duration: 800,
+    mirror: false
+  });
+</script>
+
+</body>
+</html>
