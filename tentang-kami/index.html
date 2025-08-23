@@ -8,16 +8,17 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Font Awesome -->
   <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-  
-    <!-- Firebase SDK -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <!-- AOS (Animate on Scroll) -->
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-   <!-- Icons (Heroicons) -->
+
+  <!-- Icons (Heroicons) -->
   <script src="https://unpkg.com/feather-icons"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; color:#0f172a; }
@@ -683,8 +684,12 @@
       </div>
     </div>
   </div>
-
-  <script src="<?= $base_url ?>translate.js"></script>
+  
+  <style>
+  /* Sembunyikan dropdown Alpine sebelum siap */
+  [x-cloak] { display: none !important; }
+  </style>
+  <script src="../translate.js"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <!-- Inisialisasi Lucide -->
   <script> lucide.createIcons();</script>
@@ -793,7 +798,6 @@
       }
     });
 
-    // simple "will-animate" reveal fallback (for browsers without AOS immediate triggering)
     document.addEventListener('DOMContentLoaded', () => {
       const els = document.querySelectorAll('.will-animate');
       els.forEach((el, idx) => {
