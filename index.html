@@ -14,6 +14,11 @@
 
   <!-- Icons (Heroicons) -->
   <script src="https://unpkg.com/feather-icons"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
     :root{
@@ -41,6 +46,19 @@
     70% { box-shadow: 0 0 0 12px rgba(249,115,22, 0); }
     100% { box-shadow: 0 0 0 0 rgba(249,115,22, 0); }
   }
+     body { font-family: 'Poppins', sans-serif; color:#0f172a; }
+    .navbar{ transition: top .4s ease; }
+    .nav-link{ position:relative; }
+    .nav-link:after{
+      content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0;
+      background:linear-gradient(90deg,#0ea5a0,#f97316); transition:width .25s;
+    }
+    .nav-link:hover:after{ width:100%; }
+    .btn-primary{ background:linear-gradient(90deg,#f97316,#fb923c); color:#fff; }
+    .btn-primary:hover{ filter:brightness(.95); }
+    .hover-green:hover{ color:#0ea5a0; }
+    .hover-bg-green:hover{ background:rgba(14,165,160,.08); }
+    .hover-bg-orange:hover{ background:#fed7aa; }
   </style>
 
 </head>
@@ -639,9 +657,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
   <script>
-    // init AOS
-    AOS.init({ duration: 700, once: true });
-
     // Firebase config
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
@@ -727,107 +742,9 @@
     document.getElementById('logoutBtn').addEventListener('click', () => {
       auth.signOut().then(()=>{ location.reload(); });
     });
-
-    // mobile menu toggle
-    const mobileBtn = document.getElementById('mobileBtn');
-    const mobilePanel = document.getElementById('mobilePanel');
-    mobileBtn?.addEventListener('click', () => {
-      if (mobilePanel.classList.contains('hidden')) {
-        mobilePanel.classList.remove('hidden');
-        mobilePanel.classList.add('animate-slide-down');
-      } else {
-        mobilePanel.classList.add('hidden');
-        mobilePanel.classList.remove('animate-slide-down');
-      }
-    });
-
-    // simple "will-animate" reveal fallback (for browsers without AOS immediate triggering)
-    document.addEventListener('DOMContentLoaded', () => {
-      const els = document.querySelectorAll('.will-animate');
-      els.forEach((el, idx) => {
-        setTimeout(() => el.classList.add('show'), idx * 90);
-      });
-    });
-
-    // Reader modal
-    function openReader(title){
-      document.getElementById('readerTitle').textContent = title;
-      document.getElementById('readerModal').classList.remove('hidden');
-      document.getElementById('readerModal').classList.add('flex');
-    }
-    function closeReader(){
-      document.getElementById('readerModal').classList.add('hidden');
-      document.getElementById('readerModal').classList.remove('flex');
-    }
-
-    // small accessibility: close modal with Esc
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === 'Escape') closeReader();
-    });
-
-    // feather icons replacement (if present)
-    try{ feather.replace(); }catch(e){}
-
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('ytPlayer', {
-        events: {
-          'onReady': function(event) {
-            event.target.playVideo();
-          }
-        }
-      });
-    }
-
-    // Klik iframe wrapper untuk play/pause
-    document.getElementById("ytPlayer").addEventListener("click", function () {
-      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-        player.pauseVideo();
-      } else {
-        player.playVideo();
-      }
-    });
-  </script>
-
-  <!-- Script animasi counter -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const counters = document.querySelectorAll(".counter");
-      const speed = 200; // kecepatan animasi
-
-      const animateCounters = () => {
-        counters.forEach(counter => {
-          const updateCount = () => {
-            const target = +counter.getAttribute("data-target");
-            const count = +counter.innerText;
-            const increment = Math.ceil(target / speed);
-
-            if (count < target) {
-              counter.innerText = count + increment;
-              setTimeout(updateCount, 20);
-            } else {
-              counter.innerText = target;
-            }
-          };
-          updateCount();
-        });
-      };
-
-      // Jalankan animasi saat muncul di layar
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateCounters();
-          }
-        });
-      }, { threshold: 0.5 });
-
-      counters.forEach(counter => {
-        observer.observe(counter);
-      });
-    });
   </script>
   </body>
   </html>
+
 
 
