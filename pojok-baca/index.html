@@ -1,0 +1,526 @@
+<?php 
+  include '../config/koneksi.php';
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pojok Baca</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; color:#0f172a; }
+    .navbar{ transition: top .4s ease; }
+    .nav-link{ position:relative; }
+    .nav-link:after{
+      content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0;
+      background:linear-gradient(90deg,#0ea5a0,#f97316); transition:width .25s;
+    }
+    .nav-link:hover:after{ width:100%; }
+    .btn-primary{ background:linear-gradient(90deg,#f97316,#fb923c); color:#fff; }
+    .btn-primary:hover{ filter:brightness(.95); }
+    .hover-green:hover{ color:#0ea5a0; }
+    .hover-bg-green:hover{ background:rgba(14,165,160,.08); }
+    .hover-bg-orange:hover{ background:#fed7aa; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <header id="navbar" class="navbar fixed top-0 left-0 w-full bg-white border-b border-gray-100 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-3 md:gap-4">
+          <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+        </a>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-6 items-center font-bold text-gray-500">
+          <a href="../index.html" class="nav-link hover:text-green-600" data-key="home">Beranda</a>
+          <a href="../tentang-kami/index.html" class="nav-link hover:text-green-600" data-key="about">Tentang Kami</a>
+          <a href="../program/index.html" class="nav-link hover:text-green-600" data-key=" program">Program</a>
+          <div class="relative group" id="mediaMenu">
+            <button class="nav-link hover:text-green-600 flex items-center" data-key="media">
+              Media
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute hidden group-hover:block bg-white shadow-lg mt-2 rounded-lg py-2 w-40" id="mediaDropdown">
+              <a href="../berita/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="news">Berita</a>
+              <a href="../publikasi/index.html" class="block px-4 py-2 hover:bg-green-100 hover:text-green-600" data-key="publication">Publikasi</a>
+            </div>
+          </div>
+          <a href="../pojok-baca/index.html" class="nav-link hover:text-green-600" data-key="pojok">Pojok Baca</a>
+          <a href="../hubungi-kami/index.html" class="nav-link hover:text-green-600" data-key="contact">Hubungi Kami</a>
+          <a href="../donasi/index.html" class="btn-primary rounded-lg px-4 py-2 font-semibold shadow-soft" data-key="donate">Donasi</a>
+
+          <!-- Bahasa -->
+          <div class="relative" id="langMenu">
+            <button class="nav-link hover-green flex items-center gap-1">
+              ID
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="absolute right-0 mt-3 w-40 rounded-xl bg-white border shadow-lg py-2 hidden" id="langDropdown">
+              <a href="?lang=id" class="block px-4 py-2 hover:bg-green-100">🇮🇩 Indonesia</a>
+              <a href="?lang=en" class="block px-4 py-2 hover:bg-green-100">🇬🇧 English</a>
+            </div>
+          </div>
+
+          <!-- Profile/Login -->
+          <div class="relative">
+            <button id="profileBtn" class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:ring-2 ring-offset-2 ring-[#0ea5a0]">
+              <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+              </svg>
+            </button>
+            <!-- Dropdown user -->
+            <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white border shadow-lg rounded-lg py-2 hidden">
+              <a href="#" id="myProfile" class="block px-4 py-2 hover:bg-green-100" data-key="profile">Profil Saya</a>
+              <a href="#" id="uploadBook" class="block px-4 py-2 hover:bg-green-100" data-key="upload">Upload Buku</a>
+              <a href="#" id="logoutBtn" class="block px-4 py-2 hover:bg-green-100 text-red-500 font-semibold" data-key="logout">Logout</a>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- Hamburger Mobile -->
+        <div class="flex items-center md:hidden">
+          <button id="hamburger" class="focus:outline-none">
+            <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg hidden flex-col p-6 z-40">
+      <button id="closeMenu" class="self-end mb-6">✖</button>
+      <a href="../index.php" class="block py-2 font-semibold" data-key="home">Beranda</a>
+      <a href="../tentang-kami/index.html" class="block py-2 font-semibold" data-key="about">Tentang Kami</a>
+      <a href="../program/index.html" class="block py-2 font-semibold" data-key="program">Program</a>
+      <details class="py-2">
+        <summary class="cursor-pointer font-semibold" data-key="media">Media</summary>
+        <a href="../berita/index.html" class="block py-2 pl-4" data-key="news">Berita</a>
+        <a href="../publikasi/index.html" class="block py-2 pl-4" data-key="publication">Publikasi</a>
+      </details>
+      <a href="../pojok-baca/index.html" class="block py-2 font-semibold" data-key="pojok">Pojok Baca</a>
+      <a href="../hubungi-kami/index.html" class="block py-2 font-semibold" data-key="contact">Hubungi Kami</a>
+      <a href="../donasi/index.html" class="block py-2 text-orange-600 font-bold" data-key="donation">Donasi</a>
+      <div class="mt-6">
+        <p class="text-sm text-gray-500 mb-2">Pilih Bahasa:</p>
+        <a href="?lang=id" class="block py-1">🇮🇩 Indonesia</a>
+        <a href="?lang=en" class="block py-1">🇬🇧 English</a>
+      </div>
+    </div>
+  </header>
+  <!-- HERO -->
+  <section class="pt-24 pb-8 bg-gradient-to-b from-white to-emerald-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center gap-6">
+        <div class="flex-1">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight">
+            Pojok Baca: Nyaman, Ringan, dan Fokus ke Konten
+          </h1>
+          <p class="mt-3 text-slate-600">
+            Jelajahi koleksi PDF, baca langsung, simpan untuk nanti, atau ajukan unggah buku (kurasi admin).
+          </p>
+          <div class="mt-5 flex gap-3">
+            <button id="uploadBtn" class="btn-outline rounded-lg px-4 py-2 font-semibold">+ Upload Buku</button>
+            <a href="#koleksi" class="btn-primary rounded-lg px-4 py-2 font-semibold">Lihat Koleksi</a>
+          </div>
+        </div>
+        <div class="flex-1 w-full">
+          <div class="rounded-2xl bg-white p-4 shadow-soft border">
+            <div class="h-40 sm:h-56 bg-emerald-100 rounded-xl grid place-items-center">
+              <span class="text-emerald-700 font-semibold">Preview area</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="pb-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-xl shadow-soft border p-4 flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
+        <div class="flex-1 flex flex-col sm:flex-row gap-3">
+          <div class="flex-1">
+            <input id="searchInput" type="text" placeholder="Cari judul/penulis..." class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300">
+          </div>
+          <select id="categorySelect" class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300">
+            <option value="">Semua Kategori</option>
+            <option>Al-Qur’an</option>
+            <option>Sirah</option>
+            <option>Self Improvement</option>
+            <option>Ensiklopedia</option>
+            <option>Wawasan</option>
+          </select>
+          <select id="sortSelect" class="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300">
+            <option value="new">Terbaru</option>
+            <option value="title">Judul A–Z</option>
+            <option value="popular">Terpopuler</option>
+          </select>
+        </div>
+        <button id="clearFilter" class="px-4 py-2 rounded-lg border hover-bg-green">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID BUKU -->
+  <section id="koleksi" class="pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="bookGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"></div>
+    </div>
+  </section>
+
+  <!-- DRAWER READER -->
+  <div id="readerOverlay" class="fixed inset-0 bg-black/40 hidden z-50"></div>
+  <!-- <aside id="readerDrawer" class="drawer fixed top-0 right-0 h-full w-full sm:w-[520px] bg-white z-50 shadow-2xl flex flex-col">
+    <div class="h-16 border-b flex items-center justify-between px-4">
+      <h3 id="readerTitle" class="font-bold text-lg truncate">Membaca…</h3>
+      <button id="closeReader" class="p-2 rounded-lg hover-bg-green">✕</button>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-4 space-y-4">
+        <div class="aspect-[4/3] w-full bg-gray-100 rounded-lg overflow-hidden border">
+          <iframe id="pdfFrame" src="" class="w-full h-full" title="PDF Preview"></iframe>
+        </div>
+        <div>
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-600" id="readerMeta">Kategori • Penulis</div>
+            <div class="text-xs text-gray-500">Kemajuan baca</div>
+          </div>
+          <div class="w-full bg-gray-200 h-2 rounded-full mt-2">
+            <div id="progressBar" class="h-2 rounded-full" style="width:30%; background:linear-gradient(90deg,var(--rb-green),var(--rb-orange))"></div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <a id="downloadBtn" href="#" target="_blank" class="btn-outline rounded-lg px-4 py-2 font-semibold inline-flex items-center gap-2">
+            ⬇️ Download
+          </a>
+          <button class="btn-primary rounded-lg px-4 py-2 font-semibold inline-flex items-center gap-2">🔖 Simpan</button>
+          <button class="rounded-lg px-4 py-2 font-semibold border hover-bg-green">🔗 Bagikan</button>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-2">Deskripsi</h4>
+          <p id="readerDesc" class="text-sm text-gray-700 leading-relaxed"></p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-2">Terkait</h4>
+          <div id="relatedWrap" class="grid grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+    </div>
+  </aside> -->
+
+
+  <!-- FOOTER SPACER -->
+  <div class="h-10"></div>
+        <!-- FOOTER (expanded) -->
+<footer class="bg-[var(--rb-green)] text-white pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- About -->
+      <div>
+        <div class="flex items-center gap-3">
+           <img src="../image/logo.png" alt="Rumah Baca" class="h-16 md:h-20 w-auto object-contain">
+          <div>
+            <div class="font-semibold text-lg">Rumah Baca Ulil Albab</div>
+            <div class="text-sm text-emerald-100">Membangun generasi literasi.</div>
+          </div>
+        </div>
+        <p class="mt-4 text-emerald-100/90 text-sm">Ruang aman untuk membaca, berdiskusi, dan berkarya—didukung relawan & komunitas.</p>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <div class="font-semibold mb-3">Tautan</div>
+        <ul class="space-y-2 text-emerald-100/90 text-sm">
+          <li><a href="#" class="hover:underline">Beranda</a></li>
+          <li><a href="#about" class="hover:underline">Tentang Kami</a></li>
+          <li><a href="#programs" class="hover:underline">Program</a></li>
+          <li><a href="#pojokbaca" class="hover:underline">Pojok Baca</a></li>
+          <li><a href="#news" class="hover:underline">Berita</a></li>
+        </ul>
+      </div>
+
+      <!-- Donasi info -->
+      <div>
+        <div class="font-semibold mb-3">Donasi</div>
+        <div class="text-emerald-100/90 text-sm space-y-2">
+          <div>Bank BCA — 123-456-7890 (a.n. Yayasan Ulil Albab)</div>
+          <div>Bank Mandiri — 987-654-3210 (a.n. Rumah Baca Ulil Albab)</div>
+          <div class="mt-3">Scan QRIS:</div>
+          <div class="mt-2">
+            <img src="https://via.placeholder.com/140x140.png?text=QRIS" alt="QRIS Donasi" class="rounded-md border">
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter & social -->
+      <div>
+        <div class="font-semibold mb-3">Newsletter</div>
+        <p class="text-emerald-100/90 text-sm">Dapatkan kabar kegiatan & jadwal donasi rutin.</p>
+        <form class="mt-3 flex flex-col sm:flex-row gap-2">
+          <input type="email" placeholder="Email kamu" class="w-full rounded-lg px-3 py-2 text-slate-800" />
+          <button class="rounded-lg bg-[var(--rb-orange)] px-4 py-2 font-semibold">Berlangganan</button>
+        </form>
+
+        <div class="mt-4 flex flex-wrap gap-3 text-emerald-100">
+          <a href="#" class="hover:text-white">Facebook</a>
+          <a href="#" class="hover:text-white">Instagram</a>
+          <a href="#" class="hover:text-white">YouTube</a>
+          <a href="#" class="hover:text-white">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 border-t border-white/20 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-emerald-100/90 text-sm">
+      <div>© 2025 Rumah Baca Ulil Albab. Semua hak dilindungi.</div>
+      <div>Didesain dengan ♥ oleh Tim Rumah Baca Ulil Albab — tema: hijau & oranye.</div>
+    </div>
+  </div>
+</footer>
+
+
+  <!-- Simple Reader Modal (demo) -->
+  <div id="readerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-3 border-b">
+        <div id="readerTitle" class="font-semibold">Judul Buku</div>
+        <button onclick="closeReader()" class="text-slate-600 hover:text-slate-900" aria-label="Tutup">✕</button>
+      </div>
+      <div class="p-6">
+        <p class="text-slate-700">Demo membaca — konten buku akan muncul di sini. Untuk versi produksi kita bisa integrasikan PDF viewer atau sistem CMS untuk isi buku digital.</p>
+      </div>
+    </div>
+  </div>
+  <script src="../translate.js"></script>
+    <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Navbar scroll hide/show
+    let lastScroll = 0;
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      let currentScroll = window.pageYOffset;
+      if (currentScroll > lastScroll) navbar.style.top = "-80px";
+      else navbar.style.top = "0";
+      lastScroll = currentScroll;
+    });
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMenu = document.getElementById('closeMenu');
+    hamburger.addEventListener('click', () => { mobileMenu.classList.remove('hidden'); mobileMenu.classList.add('show'); });
+    closeMenu.addEventListener('click', () => { mobileMenu.classList.add('hidden'); mobileMenu.classList.remove('show'); });
+
+    // Popup login
+    const profileBtn = document.getElementById('profileBtn');
+    const loginPopup = document.getElementById('loginPopup');
+    const closePopup = document.getElementById('closePopup');
+    profileBtn.addEventListener('click', () => { loginPopup.classList.remove('hidden'); loginPopup.classList.add('flex'); });
+    closePopup.addEventListener('click', () => { loginPopup.classList.add('hidden'); loginPopup.classList.remove('flex'); });
+
+    // Dropdown menus
+    document.getElementById('mediaMenu').addEventListener('click', () => { document.getElementById('mediaDropdown').classList.toggle('hidden'); });
+    document.getElementById('langMenu').addEventListener('click', () => { document.getElementById('langDropdown').classList.toggle('hidden'); });
+
+    // Firebase Social Login
+    document.getElementById('loginGoogle').addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then(result => {
+        loginPopup.classList.add('hidden');
+      }).catch(console.error);
+    });
+
+    document.getElementById('loginFacebook').addEventListener('click', () => {
+      const provider = new firebase.auth.FacebookAuthProvider();
+      auth.signInWithPopup(provider).then(result => { loginPopup.classList.add('hidden'); }).catch(console.error);
+    });
+
+    document.getElementById('loginApple').addEventListener('click', () => {
+      const provider = new firebase.auth.OAuthProvider('apple.com');
+      auth.signInWithPopup(provider).then(result => { loginPopup.classList.add('hidden'); }).catch(console.error);
+    });
+
+    // Login Email
+    document.getElementById('loginEmailBtn').addEventListener('click', () => {
+      const email = document.getElementById('emailInput').value;
+      auth.sendSignInLinkToEmail(email, {
+        url: window.location.href,
+        handleCodeInApp: true
+      }).then(() => {
+        window.localStorage.setItem('emailForSignIn', email);
+        alert("Cek email untuk verifikasi login.");
+      }).catch(console.error);
+    });
+
+    // Update Navbar setelah login
+    const profileDropdown = document.getElementById('profileDropdown');
+    auth.onAuthStateChanged(user => {
+      if(user){
+        profileBtn.innerHTML = `<img src="${user.photoURL || 'default-avatar.png'}" class="w-9 h-9 rounded-full"/>`;
+        profileBtn.addEventListener('click', ()=>{ profileDropdown.classList.toggle('hidden'); });
+      } else {
+        profileBtn.innerHTML = `<svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>`;
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(()=>{ location.reload(); });
+    });
+  </script>
+  <script>
+    /* =========================
+       Mock auth gating Upload
+    ==========================*/
+    let isLoggedIn = false; // ganti dari server nanti
+    document.getElementById('uploadBtn').addEventListener('click', ()=>{
+      if(!isLoggedIn) openLogin();
+      else alert('Form upload buku tampil (protected).');
+    });
+
+    /* =========================
+       Data dummy & rendering grid
+    ==========================*/
+    const books = [
+      {id:1, title:"Mushaf Madinah", author:"Tim LIPIA", category:"Al-Qur’an", cover:"https://picsum.photos/seed/quran/400/600", pdfUrl:"https://arxiv.org/pdf/2203.00001.pdf", desc:"Mushaf standar rasm Utsmani."},
+      {id:2, title:"Sirah Nabawiyah", author:"Shafiyyurrahman", category:"Sirah", cover:"https://picsum.photos/seed/sirah/400/600", pdfUrl:"https://arxiv.org/pdf/2107.00001.pdf", desc:"Kisah perjalanan hidup Rasulullah."},
+      {id:3, title:"Atomic Habits", author:"James Clear", category:"Self Improvement", cover:"https://picsum.photos/seed/atomic/400/600", pdfUrl:"https://arxiv.org/pdf/2001.00001.pdf", desc:"Bangun kebiasaan kecil berdampak besar."},
+      {id:4, title:"Ensiklopedia Sains", author:"Tim Ensiklo", category:"Ensiklopedia", cover:"https://picsum.photos/seed/sains/400/600", pdfUrl:"https://arxiv.org/pdf/2401.00001.pdf", desc:"Ilmu pengetahuan populer untuk semua."},
+      {id:5, title:"Geografi Global", author:"A. Kartono", category:"Wawasan", cover:"https://picsum.photos/seed/geo/400/600", pdfUrl:"https://arxiv.org/pdf/2303.00001.pdf", desc:"Memahami bumi dan penduduknya."},
+      {id:6, title:"Mindset", author:"Carol Dweck", category:"Self Improvement", cover:"https://picsum.photos/seed/mind/400/600", pdfUrl:"https://arxiv.org/pdf/1906.00001.pdf", desc:"Growth vs fixed mindset."},
+      {id:7, title:"Publikasi Komunitas", author:"RB Labs", category:"Wawasan", cover:"https://picsum.photos/seed/kom/400/600", pdfUrl:"https://arxiv.org/pdf/1805.00001.pdf", desc:"Kumpulan tulisan komunitas."},
+      {id:8, title:"Kamus Mini", author:"Tim KBBI", category:"Ensiklopedia", cover:"https://picsum.photos/seed/kamus/400/600", pdfUrl:"https://arxiv.org/pdf/1704.00001.pdf", desc:"Istilah sehari-hari ringkas."},
+      {id:9, title:"Sirah Ringkas", author:"Ibn Hisyam", category:"Sirah", cover:"https://picsum.photos/seed/hisyam/400/600", pdfUrl:"https://arxiv.org/pdf/1603.00001.pdf", desc:"Versi ringkas untuk pemula."},
+      {id:10, title:"Kebiasaan 1%", author:"Anonim", category:"Self Improvement", cover:"https://picsum.photos/seed/one/400/600", pdfUrl:"https://arxiv.org/pdf/1502.00001.pdf", desc:"Iterasi kecil berkelanjutan."},
+    ];
+
+    const grid = document.getElementById('bookGrid');
+    function cardHTML(b){
+      return `
+      <article class="group bg-white border rounded-xl overflow-hidden shadow-soft hover:shadow-xl transition">
+        <button data-id="${b.id}" class="open-reader w-full text-left">
+          <div class="aspect-[3/4] overflow-hidden bg-gray-100">
+            <img src="${b.cover}" alt="${b.title}" class="w-full h-full object-cover group-hover:scale-[1.02] transition">
+          </div>
+          <div class="p-3">
+            <h3 class="font-semibold leading-snug line-clamp-2">${b.title}</h3>
+            <p class="text-sm text-gray-600">${b.author}</p>
+            <div class="mt-2 inline-flex items-center gap-2 text-xs">
+              <span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">${b.category}</span>
+            </div>
+          </div>
+        </button>
+      </article>`;
+    }
+    function renderGrid(list){ grid.innerHTML = list.map(cardHTML).join(''); bindOpen(); }
+    renderGrid(books);
+
+    /* =========================
+       Filter / Search / Sort
+    ==========================*/
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const clearFilter = document.getElementById('clearFilter');
+
+    function applyFilter(){
+      let q = searchInput.value.trim().toLowerCase();
+      let cat = categorySelect.value;
+      let sort = sortSelect.value;
+      let res = books.filter(b=>{
+        const matchQ = !q || (b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+        const matchC = !cat || b.category === cat;
+        return matchQ && matchC;
+      });
+      if (sort === 'title') res.sort((a,b)=> a.title.localeCompare(b.title));
+      if (sort === 'popular') res.sort((a,b)=> b.id - a.id); // dummy popularity
+      if (sort === 'new') res.sort((a,b)=> b.id - a.id);
+      renderGrid(res);
+    }
+    [searchInput, categorySelect, sortSelect].forEach(el=> el.addEventListener('input', applyFilter));
+    clearFilter.addEventListener('click', ()=>{
+      searchInput.value=''; categorySelect.value=''; sortSelect.value='new'; applyFilter();
+    });
+
+    /* =========================
+       Reader Drawer
+    ==========================*/
+    const drawer = document.getElementById('readerDrawer');
+    const overlay = document.getElementById('readerOverlay');
+    const closeReader = document.getElementById('closeReader');
+    const readerTitle = document.getElementById('readerTitle');
+    const readerMeta = document.getElementById('readerMeta');
+    const readerDesc = document.getElementById('readerDesc');
+    const pdfFrame = document.getElementById('pdfFrame');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const relatedWrap = document.getElementById('relatedWrap');
+
+    function openReader(book){
+      readerTitle.textContent = book.title;
+      readerMeta.textContent = `${book.category} • ${book.author}`;
+      readerDesc.textContent = book.desc || '';
+      pdfFrame.src = book.pdfUrl;
+      downloadBtn.href = book.pdfUrl;
+      // related (same category)
+      const rel = books.filter(b=> b.category === book.category && b.id !== book.id).slice(0,3);
+      relatedWrap.innerHTML = rel.map(r => `
+        <button data-id="${r.id}" class="open-reader text-left">
+          <div class="aspect-[3/4] bg-gray-100 rounded overflow-hidden">
+            <img src="${r.cover}" class="w-full h-full object-cover">
+          </div>
+          <p class="mt-1 text-xs font-semibold line-clamp-2">${r.title}</p>
+        </button>`).join('');
+      bindOpen(); // rebind for related
+      overlay.classList.remove('hidden');
+      drawer.classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function closeReaderFn(){
+      overlay.classList.add('hidden');
+      drawer.classList.remove('open');
+      document.body.style.overflow='auto';
+      setTimeout(()=> pdfFrame.src='', 250);
+    }
+    function bindOpen(){
+      document.querySelectorAll('.open-reader').forEach(btn=>{
+        btn.onclick = ()=>{
+          const id = +btn.dataset.id;
+          const book = books.find(b=> b.id===id);
+          if(book) openReader(book);
+        };
+      });
+    }
+    closeReader.addEventListener('click', closeReaderFn);
+    overlay.addEventListener('click', closeReaderFn);
+
+  </script>
+</body>
+</html>
